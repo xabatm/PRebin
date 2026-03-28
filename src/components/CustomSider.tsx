@@ -5,7 +5,9 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   DashboardOutlined, 
   SettingOutlined,
-  SolutionOutlined
+  SolutionOutlined,
+  CalculatorOutlined,
+  WalletOutlined
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -23,18 +25,28 @@ export const CustomSider: React.FC<{
 
   const activeKey = React.useMemo(() => {
     const path = pathname.toLowerCase();
-    if (path.includes("/userlevle")) return "/userlevle";
-    if (path.includes("/users")) return "/users"; 
+    // ئەگەر لە هەر کام لە لاپەڕەکانی وەرگرتن بیت، با مێنۆی وەرگرتنەکە چالاک بێت
+    if (path.includes("/wargrtn")) return "/wargrtn";
     return refineSelectedKey;
   }, [pathname, refineSelectedKey]);
 
-  // لێرەدا تەنها داشبۆرد و ڕێکخستنەکان (ئاستی بەکارهێنەر) ماوەتەوە
-  // ناساندنی بەکارهێنەر لادراوە چونکە دەچێتە ناو مێنۆی سەرەوە (Nnasandn)
   const items = [
     { 
       key: "/dashboard", 
       icon: <DashboardOutlined />, 
       label: <Link to="/dashboard">داشبۆرد</Link> 
+    },
+    {
+      key: "accounting-group",
+      icon: <CalculatorOutlined />,
+      label: "ژمێریاری",
+      children: [
+        { 
+          key: "/wargrtn", 
+          icon: <WalletOutlined />, 
+          label: <Link to="/wargrtn">وەرگرتنی پارە</Link> 
+        },
+      ],
     },
     {
       key: "setup-group",
@@ -44,7 +56,7 @@ export const CustomSider: React.FC<{
         { 
           key: "/userlevle", 
           icon: <SolutionOutlined />, 
-          label: <Link to="/userlevle">ئاستی بەکارهێنەر</Link> 
+          label: <Link to="/userlevle"> ناساندنەكان</Link> 
         },
       ],
     },
@@ -53,20 +65,15 @@ export const CustomSider: React.FC<{
   const renderMenu = (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ padding: "20px", textAlign: "center", background: "#1e293b" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Text style={{ color: "white", fontSize: "17px", fontWeight: "bold", whiteSpace: "nowrap" }}>
-            {user?.fullname || "بەکارھێنەر"}
-          </Text>
-          <Text style={{ color: "#94a3b8", fontSize: "12px", whiteSpace: "nowrap" }}>
-            سیستەمی بەڕێوەبردن
-          </Text>
-        </div>
+        <Text style={{ color: "white", fontSize: "17px", fontWeight: "bold" }}>
+          {user?.fullname || "بەکارھێنەر"}
+        </Text>
       </div>
       <Divider style={{ borderColor: "#334155", margin: 0 }} />
       <Menu
         theme="dark"
         selectedKeys={[activeKey || ""]}
-        defaultOpenKeys={["setup-group"]}
+        defaultOpenKeys={["accounting-group", "setup-group"]}
         mode="inline"
         style={{ backgroundColor: "transparent", border: 0, marginTop: "10px", flex: 1 }}
         items={items}
@@ -75,41 +82,12 @@ export const CustomSider: React.FC<{
     </div>
   );
 
-  if (isMobile) {
-    return (
-      <Drawer
-        placement="right"
-        closable={true}
-        onClose={() => setCollapsed(true)}
-        open={!collapsed}
-        width={260}
-        styles={{ 
-            body: { padding: 0, backgroundColor: "#0f172a" },
-            header: { display: "none" }
-        }}
-      >
-        {renderMenu}
-      </Drawer>
-    );
-  }
-
-  return (
-    <Sider
-      width={260}
-      collapsedWidth={0}
-      trigger={null}
-      collapsible
-      collapsed={collapsed}
-      style={{
-        backgroundColor: "#0f172a",
-        height: "100vh",
-        position: "sticky",
-        top: 0,
-        zIndex: 1000,
-        transition: "all 0.3s ease",
-        overflow: "hidden"
-      }}
-    >
+  return isMobile ? (
+    <Drawer placement="right" open={!collapsed} onClose={() => setCollapsed(true)} width={260} styles={{ body: { padding: 0, backgroundColor: "#0f172a" }, header: { display: "none" } }}>
+      {renderMenu}
+    </Drawer>
+  ) : (
+    <Sider width={260} collapsed={collapsed} style={{ backgroundColor: "#0f172a", height: "100vh", position: "sticky", top: 0 }}>
       {renderMenu}
     </Sider>
   );

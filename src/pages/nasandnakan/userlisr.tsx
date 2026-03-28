@@ -155,14 +155,14 @@ export const UserList: React.FC = () => {
 
               <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: "15px", marginTop: "5px" }}>
                 <Space size="middle">
-                  <Button onClick={handleAddNew} icon={<PlusOutlined />} disabled={!isDisabled} style={{ width: "120px" }}>
+                  <Button onClick={handleAddNew} icon={<PlusOutlined />} disabled={!isDisabled} style={{ width: "90px" }}>
                     نوێ
                   </Button>
-                  <Button type="primary" htmlType="submit" icon={<SaveOutlined />} style={{ background: "#0d9488", borderColor: "#0d9488", width: "120px" }} disabled={isDisabled}>
+                  <Button type="primary" htmlType="submit" icon={<SaveOutlined />} style={{ background: "#0d9488", borderColor: "#0d9488", width: "100px" }} disabled={isDisabled}>
                     {editId ? "گۆڕین" : "تۆمارکردن"}
                   </Button>
-                  <Button onClick={resetAll} icon={<RollbackOutlined />} danger disabled={isDisabled} style={{ width: "120px" }}>
-                    پاشگەزبوونەوە
+                  <Button onClick={resetAll} icon={<RollbackOutlined />} danger disabled={isDisabled} style={{ width: "100px" }}>
+                    گەڕانەوە
                   </Button>
                 </Space>
               </div>

@@ -4,15 +4,14 @@ import { useLocation, Link } from "react-router-dom";
 import { 
   UserOutlined, 
   TeamOutlined, 
-  HomeOutlined, 
-  ClusterOutlined,
-  SettingOutlined 
+  ShopOutlined,
+  BarcodeOutlined,
+  DollarOutlined // ئایکۆنی نوێ بۆ نرخی فرۆش
 } from "@ant-design/icons";
 
 export const Nnasandn: React.FC = () => {
   const { pathname } = useLocation();
 
-  // تێبینی: لێرە کلیلەکە (key) کراوە بە /users بۆ ئەوەی لەگەڵ App.tsx یەک بگرێتەوە
   const items = [
     { 
       key: "/userlevle", 
@@ -25,19 +24,19 @@ export const Nnasandn: React.FC = () => {
       label: <Link to="/users">بەکارهێنەران</Link> 
     },
     { 
-      key: "/nasandni-koga", 
-      icon: <HomeOutlined />, 
-      label: <Link to="/nasandni-koga">ناساندنی کۆگا</Link> 
+      key: "/mshtarylist", 
+      icon: <ShopOutlined />, 
+      label: <Link to="/mshtarylist">مشتەرییەکان</Link> 
     },
     { 
-      key: "/darazhmeryari", 
-      icon: <ClusterOutlined />, 
-      label: <Link to="/darazhmeryari">دارەژمێریاری</Link> 
+      key: "/barhamlist", 
+      icon: <BarcodeOutlined />, 
+      label: <Link to="/barhamlist">بەرهەمەکان</Link> 
     },
     { 
-      key: "/rekxstnakan", 
-      icon: <SettingOutlined />, 
-      label: <Link to="/rekxstnakan">ڕێکخستنەکان</Link> 
+      key: "/nrxfrosh", // ڕێڕەوی لاپەڕە نوێیەکە
+      icon: <DollarOutlined />, 
+      label: <Link to="/nrxfrosh">نرخی فرۆش</Link> 
     },
   ];
 
