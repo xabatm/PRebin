@@ -1,121 +1,118 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from "react";
+import { Refine } from "@refinedev/core";
+import { useNotificationProvider, ErrorComponent } from "@refinedev/antd";
+import { dataProvider } from "@refinedev/supabase";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import { App as AntdApp, ConfigProvider, Layout, Button, Grid } from "antd";
+import { MenuOutlined, ArrowRightOutlined } from "@ant-design/icons";
+
+import { supabase } from "./supabaseClient";
+import { CustomSider } from "./components/CustomSider";
+import { Nnasandn } from "./components/Nnasandn"; 
+import { UserLevelList } from "./pages/nasandnakan/userlvlelist";
+import { UserList } from "./pages/nasandnakan/userlisr"; 
+
+const { Header, Content } = Layout;
+const { useBreakpoint } = Grid;
+
+const globalStyles = `
+  body, html, #root { margin: 0; padding: 0; height: 100%; width: 100%; overflow-x: hidden; }
+  .ant-layout { flex-direction: row !important; display: flex !important; width: 100% !important; }
+  .inner-layout { flex-direction: column !important; flex: 1 !important; min-width: 0; }
+  .ant-layout-content { background: #f0f2f5 !important; width: 100%; }
+`;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const screens = useBreakpoint();
+  const isMobile = screens.md === false;
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <BrowserRouter>
+      <style>{globalStyles}</style>
+      <ConfigProvider direction="rtl">
+        <AntdApp>
+          <Refine
+            dataProvider={dataProvider(supabase)}
+            notificationProvider={useNotificationProvider} 
+            resources={[
+              { name: "userlevle", list: "/userlevle" },
+              { name: "user", list: "/users" },
+              { name: "nasandni-koga", list: "/nasandni-koga" },
+              { name: "darazhmeryari", list: "/darazhmeryari" }
+            ]}
+          >
+            <Routes>
+              <Route
+                element={
+                  <Layout style={{ minHeight: "100vh", width: "100%" }}>
+                    <CustomSider 
+                      collapsed={collapsed} 
+                      setCollapsed={setCollapsed} 
+                      isMobile={isMobile}
+                    />
+                    
+                    <Layout className="inner-layout">
+                      <Header style={{ 
+                        background: "#0f172a", 
+                        padding: "0 20px", 
+                        display: "flex", 
+                        alignItems: "center",
+                        height: "64px",
+                        boxShadow: "0 1px 4px rgba(0,21,41,.08)",
+                        width: "100%"
+                      }}>
+                        <Button
+                          type="text"
+                          icon={collapsed ? 
+                            <MenuOutlined style={{ fontSize: "22px" }} /> : 
+                            <ArrowRightOutlined style={{ fontSize: "22px" }} />
+                          }
+                          onClick={() => setCollapsed(!collapsed)}
+                          style={{
+                            width: 50,
+                            height: 50,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginLeft: "10px"
+                          }}
+                        />
+                        <span style={{ color: "white", fontSize: "18px", fontWeight: "bold" }}>
+                          کۆمپانیای بێژوو | لقی بێژوو
+                        </span>
+                      </Header>
+                      
+                      <Content style={{ padding: "15px" }}>
+                        <div style={{ width: "100%", maxWidth: "100%" }}>
+                          <Nnasandn />
+                          <div style={{ marginTop: "15px" }}>
+                            <Outlet />
+                          </div>
+                        </div>
+                      </Content>
+                    </Layout>
+                  </Layout>
+                }
+              >
+                {/* ڕێڕەوەکان - Routes */}
+                <Route path="/userlevle" element={<UserLevelList />} />
+                <Route path="/users" element={<UserList />} /> 
+                
+                {/* ئەمانە بە کاتی دامناون تا 404 نەدەن، دەتوانی دواتر لاپەڕەی خۆیان دابنێیت */}
+                <Route path="/nasandni-koga" element={<div>لاپەڕەی ناساندنی کۆگا</div>} />
+                <Route path="/darazhmeryari" element={<div>لاپەڕەی دارەژمێریاری</div>} />
+                <Route path="/rekxstnakan" element={<div>لاپەڕەی ڕێکخستنەکان</div>} />
+                
+                <Route path="*" element={<ErrorComponent />} />
+              </Route>
+            </Routes>
+          </Refine>
+        </AntdApp>
+      </ConfigProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
