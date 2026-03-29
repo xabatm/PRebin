@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 
-// پێکهاتەی بەروار بە لۆجیکی سکرۆڵ (RTL)
+// --- ScrollDatePicker لێرەدا وەک خۆی دەمێنێتەوە ---
 const ScrollDatePicker: React.FC<{ 
   label: string, 
   value: dayjs.Dayjs, 
@@ -29,20 +29,6 @@ const ScrollDatePicker: React.FC<{
     onChange(newDate);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowUp") { e.preventDefault(); updateDate(1); }
-    else if (e.key === "ArrowDown") { e.preventDefault(); updateDate(-1); } 
-    else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      if (activeSegment === 'day') setActiveSegment('month');
-      else if (activeSegment === 'month') setActiveSegment('year');
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      if (activeSegment === 'year') setActiveSegment('month');
-      else if (activeSegment === 'month') setActiveSegment('day');
-    }
-  };
-
   const segmentStyle = (type: string) => ({
     padding: "1px 6px",
     cursor: "pointer",
@@ -61,10 +47,9 @@ const ScrollDatePicker: React.FC<{
         style={{ 
           display: "flex", alignItems: "center", border: "1px solid #d9d9d9", 
           height: "36px", borderRadius: "6px", padding: "0 8px", background: "#fff",
-          outline: "none", boxShadow: activeSegment ? "0 0 0 2px rgba(13, 148, 136, 0.1)" : "none"
+          outline: "none"
         }}
         onWheel={(e) => { e.preventDefault(); updateDate(e.deltaY < 0 ? 1 : -1); }}
-        onKeyDown={handleKeyDown}
         tabIndex={0}
       >
         <CalendarOutlined onClick={() => setOpen(true)} style={{ color: "#0d9488", marginLeft: "8px", fontSize: "16px" }} />
@@ -115,21 +100,20 @@ export const WargrtnList: React.FC = () => {
     setLoading(false);
   };
 
-  // ستایلی کارتی ستاندارد کە هێڵە سەوزەکەی لە سەرەوەیە
   const cardStyle: React.CSSProperties = {
     marginBottom: "12px", 
     borderRadius: "8px", 
-    borderTop: "4px solid #0d9488", // ئەمە ئەو هێڵە باریكەیە کە داوات کردبوو
+    borderTop: "4px solid #0d9488",
     boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
   };
 
   return (
-    <div style={{ padding: "10px" }}>
-      {/* سندوقی فلتەرەکان */}
-      <Card style={cardStyle} bodyStyle={{ padding: "12px 16px" }}>
+    <div style={{ padding: "8px" }}>
+      {/* فلتەرەکان - Responsive */}
+      <Card style={cardStyle} bodyStyle={{ padding: "12px" }}>
         <Row gutter={[12, 12]} align="bottom">
-          <Col xs={24} md={7}>
-            <Text style={{ fontSize: "11px", color: "#64748b", fontWeight: "bold", display: "block", marginBottom: "2px" }}>ناوی پێدەر:</Text>
+          <Col xs={24} sm={24} md={7}>
+            <Text style={{ fontSize: "11px", color: "#64748b", fontWeight: "bold", display: "block" }}>ناوی پێدەر:</Text>
             <Select 
               placeholder="هەموو " 
               allowClear 
@@ -140,14 +124,15 @@ export const WargrtnList: React.FC = () => {
               filterOption={(input, option) => (option?.label ?? "").includes(input)}
             />
           </Col>
-          <Col xs={12} md={6}><ScrollDatePicker label="لە بەرواری" value={fromDate} onChange={setFromDate} /></Col>
-          <Col xs={12} md={6}><ScrollDatePicker label="بۆ بەرواری" value={toDate} onChange={setToDate} /></Col>
+          <Col xs={12} sm={12} md={6}><ScrollDatePicker label="لە بەرواری" value={fromDate} onChange={setFromDate} /></Col>
+          <Col xs={12} sm={12} md={6}><ScrollDatePicker label="بۆ بەرواری" value={toDate} onChange={setToDate} /></Col>
           <Col xs={24} md={5}>
             <Button 
               type="primary" 
               icon={<SearchOutlined />} 
               onClick={fetchData} 
-              style={{ width: "100%", background: "#0d9488", height: "36px", borderRadius: "6px", fontWeight: "bold" }}
+              block
+              style={{ background: "#0d9488", height: "36px", borderRadius: "6px", fontWeight: "bold" }}
             >
               نیشاندان
             </Button>
@@ -155,11 +140,11 @@ export const WargrtnList: React.FC = () => {
         </Row>
       </Card>
 
-      {/* خشتەی ئەنجامەکان */}
+      {/* لیست - Responsive Table */}
       <Card 
         style={cardStyle}
         title={
-          <Space style={{ color: "#0d9488", padding: "4px 0" }}>
+          <Space style={{ color: "#0d9488" }}>
             <TableOutlined /> 
             <span style={{ fontWeight: "bold", fontSize: "14px" }}>لیستی وەرگرتنەکان</span>
           </Space>
@@ -170,21 +155,21 @@ export const WargrtnList: React.FC = () => {
           dataSource={data} 
           loading={loading} 
           rowKey="id" 
-          pagination={{ pageSize: 15 }} 
+          pagination={{ pageSize: 15, simple: window.innerWidth < 768 }} 
           size="small"
+          // --- لێرەدا گرنگی بە شاشەی موبایل دراوە ---
+          scroll={{ x: 700 }} // ڕێگە دەدات بە سکرۆڵی ئاسۆیی ئەگەر شاشە بچووک بوو
           summary={(pageData) => {
             let totalBr = 0;
             pageData.forEach(({ br }) => { totalBr += Number(br) || 0; });
             return (
               <Table.Summary fixed>
                 <Table.Summary.Row style={{ background: "#f8fafc" }}>
-                  <Table.Summary.Cell index={0} colSpan={5}>
-                    <Text strong style={{ fontSize: "13px" }}>کۆیی گشتی:</Text>
+                  <Table.Summary.Cell index={0} colSpan={window.innerWidth < 768 ? 2 : 4}>
+                    <Text strong>کۆیی گشتی:</Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
-                    <Text strong style={{ color: "#0d9488", fontSize: "14px" }}>
-                      {totalBr.toLocaleString()}
-                    </Text>
+                    <Text strong style={{ color: "#0d9488" }}>{totalBr.toLocaleString()}</Text>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={2} />
                 </Table.Summary.Row>
@@ -192,27 +177,51 @@ export const WargrtnList: React.FC = () => {
             );
           }}
         >
-          {/* ستونی ڕیز بۆ ئەژمارکردن */}
           <Table.Column 
             title="ڕیز" 
             key="index" 
             width={50}
+            fixed="right"
             align="center"
-            render={(_, __, index) => <Text type="secondary" style={{fontSize: '12px'}}>{index + 1}</Text>} 
+            render={(_, __, index) => <Text type="secondary" style={{fontSize: '11px'}}>{index + 1}</Text>} 
           />
-          <Table.Column title="ژ.سیستەم" dataIndex="zhpsulao" render={(v) => <Tag color="blue">#{v}</Tag>} />
-          <Table.Column title="ژ.دەستی" dataIndex="zhpsulad" />
-          <Table.Column title="بەروار" dataIndex="date" render={(d) => dayjs(d).format("YYYY/MM/DD")} />
-          <Table.Column title="ناوی مشتەری" dataIndex={["mshtary", "Mname"]} />
-          <Table.Column title="بڕ" dataIndex="br" render={(v) => <Text strong color="#0d9488">{Number(v).toLocaleString()}</Text>} />
-          <Table.Column title="کردارەکان" align="center" render={(_, record: any) => (
-            <Space>
-              <Button size="small" icon={<EditOutlined />} onClick={() => navigate("/wargrtn", { state: { editData: record } })} />
-              <Popconfirm title="دڵنیای لە سڕینەوە ؟" onConfirm={async () => { await supabase.from("wargrtn").delete().eq("id", record.id); fetchData(); }}>
-                <Button size="small" icon={<DeleteOutlined />} danger ghost />
-              </Popconfirm>
-            </Space>
-          )} />
+          <Table.Column 
+            title="ژ.پسوڵە" 
+            dataIndex="zhpsulao" 
+            width={100}
+            render={(v) => <Tag color="blue" style={{margin:0}}>#{v}</Tag>} 
+          />
+          <Table.Column 
+            title="بەروار" 
+            dataIndex="date" 
+            width={100}
+            render={(d) => <span style={{fontSize: '12px'}}>{dayjs(d).format("YYYY/MM/DD")}</span>} 
+          />
+          <Table.Column 
+            title="ناوی مشتەری" 
+            dataIndex={["mshtary", "Mname"]} 
+            ellipsis // ئەگەر ناوەکە زۆر درێژ بوو، نایبڕێت بەڵکو سێ خاڵ دادەنێت
+          />
+          <Table.Column 
+            title="بڕ" 
+            dataIndex="br" 
+            width={110}
+            render={(v) => <Text strong style={{color: "#0d9488"}}>{Number(v).toLocaleString()}</Text>} 
+          />
+          <Table.Column 
+            title="کردارەکان" 
+            width={90}
+            fixed="left" // لە موبایلدا لە لای چەپ جێگیر دەبێت
+            align="center" 
+            render={(_, record: any) => (
+              <Space size="small">
+                <Button size="small" icon={<EditOutlined />} onClick={() => navigate("/wargrtn", { state: { editData: record } })} />
+                <Popconfirm title="سڕینەوە؟" onConfirm={async () => { await supabase.from("wargrtn").delete().eq("id", record.id); fetchData(); }}>
+                  <Button size="small" icon={<DeleteOutlined />} danger ghost />
+                </Popconfirm>
+              </Space>
+            )} 
+          />
         </Table>
       </Card>
     </div>
