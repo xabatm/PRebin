@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Form, Input, Card, Button, Space, Row, Col, App, InputNumber, Select, DatePicker, Typography 
+  Form, Input, Card, Button, Space, Row, Col, App, InputNumber, Select, Typography 
 } from "antd";
 import { 
   SaveOutlined, 
@@ -29,7 +29,6 @@ export const Wargrtn: React.FC = () => {
   const [month, setMonth] = useState(dayjs().month() + 1);
   const [day, setDay] = useState(dayjs().date());
   const [activeSegment, setActiveSegment] = useState<'year' | 'month' | 'day'>('day');
-  const [openPicker, setOpenPicker] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -86,7 +85,6 @@ export const Wargrtn: React.FC = () => {
     setEditId(null);
     setIsEditable(false);
     navigate("/wargrtn", { state: null });
-    msg.info("کردارەکە هەڵوەشایەوە");
   };
 
   const updateDate = (type: 'year' | 'month' | 'day', delta: number) => {
@@ -119,140 +117,121 @@ export const Wargrtn: React.FC = () => {
       };
 
       if (editId) {
-        const { error } = await supabase.from("wargrtn").update(payload).eq("id", editId);
-        if (error) throw error;
-        msg.success("گۆڕانکارییەکان پاشکەوت کران");
+        await supabase.from("wargrtn").update(payload).eq("id", editId);
+        msg.success("پاشکەوت کرا");
       } else {
-        const { error } = await supabase.from("wargrtn").insert([payload]);
-        if (error) throw error;
+        await supabase.from("wargrtn").insert([payload]);
         msg.success("تۆمارکرا");
       }
-
-      form.resetFields();
       setIsEditable(false);
       setEditId(null);
       if (editId) navigate("/wargrtnlist");
-    } catch (error: any) {
-      msg.error("کێشەیەک ڕوویدا");
+    } catch (error) {
+      msg.error("هەڵەیەک هەیە");
     } finally {
       setLoading(false);
     }
   };
 
-  // ستایلی هێدەرە سەوزە گەورەکە (پڕاوپڕ وەک ئەوەی دیاریت کردووە)
   const headerStyle: React.CSSProperties = {
     background: editId ? "#f29339" : "#0d9488", 
     color: "#fff", 
-    height: "45px", // بەرزکردنەوەی هێدەرەکە بۆ ئەو قیاسەی ویستووتە
+    height: "40px", 
     display: "flex", 
     alignItems: "center", 
-    padding: "0 15px",
+    padding: "0 12px",
     borderRadius: "8px 8px 0 0", 
     fontWeight: "bold",
-    fontSize: "15px"
+    fontSize: "14px"
   };
 
+  // ستایلی دوگمە بچوکەکان
+  const btnStyle = (bg?: string): React.CSSProperties => ({
+    height: "34px", 
+    borderRadius: "6px", 
+    minWidth: "90px", 
+    fontSize: "12px", 
+    fontWeight: "600",
+    background: bg,
+    borderColor: bg
+  });
+
   return (
-    <div style={{ padding: "10px" }}>
+    <div style={{ padding: "8px" }}>
       <Card 
         title={
           <div style={headerStyle}>
-            <Space>
-              <WalletOutlined />
-              {editId ? "دەستکاریکردنی وەرگرتن" : "تۆمارکردنی وەرگرتنی پارە"}
-            </Space>
+            <Space><WalletOutlined /> {editId ? "دەستکاری" : "وەرگرتنی پارە"}</Space>
           </div>
         }
-        styles={{ header: { padding: 0, borderBottom: "none" } }} // لادانی سپەیس و هێڵە زیادەکان
-        style={{ borderRadius: "8px", maxWidth: "100%", margin: "0 auto", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
+        styles={{ header: { padding: 0, borderBottom: "none" } }}
+        style={{ borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
       >
-        <Form form={form} layout="vertical" onFinish={onFinish} style={{ padding: "10px" }}>
-          <Row gutter={[16, 0]}>
-            <Col xs={24} md={8}>
-              <Form.Item label="بەروار" required>
-                <div 
-                  style={{ 
-                    display: "flex", alignItems: "center", border: "1px solid #d9d9d9", 
-                    borderRadius: "6px", padding: "0 10px", height: "40px", 
-                    background: isEditable ? "#fff" : "#f5f5f5"
-                  }}
-                  onWheel={(e) => updateDate(activeSegment, e.deltaY < 0 ? 1 : -1)}
-                  tabIndex={0}
-                >
-                   <span onClick={() => isEditable && setActiveSegment('year')} style={{ padding: "2px 5px", background: activeSegment === 'year' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}>{year}</span>
+        <Form form={form} layout="vertical" onFinish={onFinish} style={{ padding: "8px" }}>
+          <Row gutter={[12, 0]}>
+            <Col xs={24} sm={8}>
+              <Form.Item label={<Text style={{fontSize: '12px'}}>بەروار</Text>} required>
+                <div style={{ display: "flex", alignItems: "center", border: "1px solid #d9d9d9", borderRadius: "6px", padding: "0 8px", height: "36px", background: isEditable ? "#fff" : "#f5f5f5" }} onWheel={(e) => updateDate(activeSegment, e.deltaY < 0 ? 1 : -1)} tabIndex={0}>
+                   <span onClick={() => isEditable && setActiveSegment('year')} style={{ padding: "2px 4px", background: activeSegment === 'year' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontSize: "13px" }}>{year}</span>
                    <span style={{ margin: "0 2px" }}>/</span>
-                   <span onClick={() => isEditable && setActiveSegment('month')} style={{ padding: "2px 5px", background: activeSegment === 'month' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}>{String(month).padStart(2, '0')}</span>
+                   <span onClick={() => isEditable && setActiveSegment('month')} style={{ padding: "2px 4px", background: activeSegment === 'month' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontSize: "13px" }}>{String(month).padStart(2, '0')}</span>
                    <span style={{ margin: "0 2px" }}>/</span>
-                   <span onClick={() => isEditable && setActiveSegment('day')} style={{ padding: "2px 5px", background: activeSegment === 'day' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}>{String(day).padStart(2, '0')}</span>
+                   <span onClick={() => isEditable && setActiveSegment('day')} style={{ padding: "2px 4px", background: activeSegment === 'day' && isEditable ? "#bae7ff" : "transparent", borderRadius: "4px", cursor: "pointer", fontSize: "13px" }}>{String(day).padStart(2, '0')}</span>
                 </div>
               </Form.Item>
             </Col>
-
-            <Col xs={24} md={8}>
-              <Form.Item name="zhpsulao" label="ژمارەی پسوڵە (سیستەم)">
-                <InputNumber disabled style={{ width: "100%", height: "40px", borderRadius: "6px", fontWeight: "bold", color: "#000" }} />
+            <Col xs={12} sm={8}>
+              <Form.Item name="zhpsulao" label={<Text style={{fontSize: '12px'}}>ژ.سیستەم</Text>}>
+                <InputNumber disabled style={{ width: "100%", height: "36px", borderRadius: "6px" }} />
               </Form.Item>
             </Col>
-
-            <Col xs={24} md={8}>
-              <Form.Item name="zhpsulad" label="ژمارەی پسوڵەی دەستی">
-                <InputNumber disabled={!isEditable} placeholder="ژمارەی پسوڵە" style={{ width: "100%", height: "40px", borderRadius: "6px" }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 0]}>
-            <Col xs={24} md={12}>
-              <Form.Item name="mshID" label="ناوی پێدەر" rules={[{ required: true, message: " هەڵبژێرە" }]}>
-                <Select
-                  disabled={!isEditable}
-                  showSearch
-                  placeholder="هەڵبژاردن"
-                  style={{ height: "40px" }}
-                  options={customers.map(c => ({ value: c.id, label: c.Mname }))}
-                  filterOption={(input, option) => (option?.label ?? "").includes(input)}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item name="br" label="بڕی پارەی وەرگیراو" rules={[{ required: true, message: "بڕ بنوسە" }]}>
-                <InputNumber
-                  disabled={!isEditable}
-                  style={{ width: "100%", height: "40px" }}
-                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                  parser={(value) => value!.replace(/\$\s?|(,*)/g, "") as any}
-                />
+            <Col xs={12} sm={8}>
+              <Form.Item name="zhpsulad" label={<Text style={{fontSize: '12px'}}>ژ.دەستی</Text>}>
+                <InputNumber disabled={!isEditable} style={{ width: "100%", height: "36px", borderRadius: "6px" }} />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item name="memo" label="تێبینی">
-            <Input.TextArea disabled={!isEditable} rows={2} placeholder="تێبینی لێرە بنووسە..." style={{ borderRadius: "6px" }} />
+          <Row gutter={[12, 0]}>
+            <Col xs={24} md={12}>
+              <Form.Item name="mshID" label={<Text style={{fontSize: '12px'}}>ناوی پێدەر</Text>} rules={[{ required: true }]}>
+                <Select disabled={!isEditable} showSearch style={{ height: "36px" }} options={customers.map(c => ({ value: c.id, label: c.Mname }))} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="br" label={<Text style={{fontSize: '12px'}}>بڕی پارە</Text>} rules={[{ required: true }]}>
+                <InputNumber disabled={!isEditable} style={{ width: "100%", height: "36px" }} formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="memo" label={<Text style={{fontSize: '12px'}}>تێبینی</Text>}>
+            <Input.TextArea disabled={!isEditable} rows={2} style={{ borderRadius: "6px" }} />
           </Form.Item>
 
-          <Row justify="end" style={{ marginTop: "10px" }}>
-            <Col>
-              <Space size="middle">
+          <Row justify="end" style={{ marginTop: "5px" }}>
+            <Col xs={24} style={{ textAlign: 'right' }}>
+              <Space wrap size="small">
                 <Button 
                   type="primary" icon={<PlusOutlined />} onClick={handleNew}
                   disabled={isEditable && !editId} 
-                  style={{ background: "#0d9488", borderColor: "#0d9488", height: "40px", borderRadius: "6px", minWidth: "110px" }}
+                  style={btnStyle("#0d9488")}
                 >
                   نوێ
                 </Button>
                 <Button 
                   type="primary" htmlType="submit" icon={<SaveOutlined />} loading={loading}
                   disabled={!isEditable}
-                  style={{ background: isEditable ? (editId ? "#f29339" : "#0d9488") : "#d9d9d9", borderColor: isEditable ? (editId ? "#f29339" : "#0d9488") : "#d9d9d9", height: "40px", borderRadius: "6px", minWidth: "110px" }}
+                  style={btnStyle(isEditable ? (editId ? "#f29339" : "#0d9488") : "#d9d9d9")}
                 >
-                  {editId ? "پاشکەوتکردن" : "تۆمارکردن"}
+                  {editId ? "پاشکەوت" : "تۆمارکردن"}
                 </Button>
                 <Button 
                   danger icon={<CloseCircleOutlined />} onClick={handleCancel}
                   disabled={!isEditable}
-                  style={{ height: "40px", borderRadius: "6px", minWidth: "110px" }}
+                  style={{ ...btnStyle(), minWidth: "80px" }}
                 >
-                  پاشگەزبوونەوە
+                  لادان
                 </Button>
               </Space>
             </Col>
