@@ -46,10 +46,20 @@ export const UserList: React.FC = () => {
     borderRadius: "8px 8px 0 0"
   };
 
+  // --- نوێکردنەوەی لۆجیکی تەیبڵ بۆ شاردنەوەی ID 1 ---
   const { tableProps, tableQuery } = useTable<IUser, HttpError>({
     resource: "user",
     pagination: { mode: "off" },
     sorters: { initial: [{ field: "id", order: "desc" }] },
+    filters: {
+      initial: [
+        {
+          field: "id",
+          operator: "ne", // Not Equal
+          value: 1,
+        },
+      ],
+    },
   });
 
   const { selectProps: levelSelectProps } = useSelect({
@@ -89,7 +99,6 @@ export const UserList: React.FC = () => {
   return (
     <div style={{ padding: "10px" }}>
       <Row gutter={[0, 20]}>
-        {/* بەشی فۆڕم - لە سەرەوە */}
         <Col span={24}>
           <Card 
             title={<div style={headerStyle}>ناساندنی بەکارهێنەر</div>}
@@ -170,7 +179,6 @@ export const UserList: React.FC = () => {
           </Card>
         </Col>
 
-        {/* بەشی تەیبڵ - لە خوارەوە */}
         <Col span={24}>
           <Card 
             title={<div style={headerStyle}>لیستی بەکارهێنەران</div>}

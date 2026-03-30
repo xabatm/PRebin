@@ -7,7 +7,8 @@ export const authProvider: AuthProvider = {
       localStorage.setItem("auth", JSON.stringify(user));
       return {
         success: true,
-        redirectTo: "/",
+        // لێرە گۆڕدرا بۆ /dashboard بۆ ئەوەی ڕاستەوخۆ بچێتە سەر داشبۆرد
+        redirectTo: "/dashboard", 
       };
     }
     return {

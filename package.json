@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.1",
+    "@ant-design/plots": "^2.6.8",
     "@refinedev/antd": "^6.0.3",
     "@refinedev/core": "^5.0.11",
     "@refinedev/supabase": "^6.0.2",

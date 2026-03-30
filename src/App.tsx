@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Refine, Authenticated, useLogout } from "@refinedev/core";
 import { useNotificationProvider, ErrorComponent } from "@refinedev/antd";
 import { dataProvider } from "@refinedev/supabase";
-import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router-dom";
 import { App as AntdApp, ConfigProvider, Layout, Button, Grid } from "antd";
 import { 
   MenuOutlined, 
   ArrowRightOutlined, 
-  LogoutOutlined 
+  LogoutOutlined,
+  DashboardOutlined 
 } from "@ant-design/icons";
 
 import { supabase } from "./supabaseClient";
@@ -18,6 +19,10 @@ import { ZhmeryaryMenu } from "./components/ZhmeryaryMenu";
 import { Mdraw } from "./components/Mdraw"; 
 import { Msale } from "./components/Mseal"; 
 import { LoginPage } from "./pages/LoginPage"; 
+
+// --- لاپەڕەی داشبۆرد ---
+import { Dashboard } from "./pages/Dashboard"; 
+
 import { UserLevelList } from "./pages/nasandnakan/userlvlelist";
 import { UserList } from "./pages/nasandnakan/userlisr"; 
 import { MshtaryList } from "./pages/nasandnakan/mshtarylist"; 
@@ -42,42 +47,23 @@ const globalStyles = `
   .ant-layout-content { background: #f0f2f5 !important; width: 100%; }
 `;
 
-// --- تایبەتمەندی نوێ: چاودێریکردنی چالاکی کاربەر ---
 const AutoLogoutHandler: React.FC = () => {
   const { mutate: logout } = useLogout();
-
   useEffect(() => {
     let timer: NodeJS.Timeout;
-
     const resetTimer = () => {
       if (timer) clearTimeout(timer);
-      // ۱۰ خولەک = ۱۰ * ٦٠ * ۱۰۰۰ میڵی چرکە
-      timer = setTimeout(() => {
-        logout();
-      }, 10 * 60 * 1000);
+      timer = setTimeout(() => { logout(); }, 10 * 60 * 1000);
     };
-
-    // ڕووداوەکان کە چالاکی کاربەر دیاری دەکەن
-    const activityEvents = [
-      "mousedown", "mousemove", "keydown", 
-      "scroll", "touchstart", "click"
-    ];
-
-    activityEvents.forEach((event) => {
-      window.addEventListener(event, resetTimer);
-    });
-
-    resetTimer(); // دەستپێکردن لە کاتی بارکردنی ئەپەکە
-
+    const activityEvents = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
+    activityEvents.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer();
     return () => {
       if (timer) clearTimeout(timer);
-      activityEvents.forEach((event) => {
-        window.removeEventListener(event, resetTimer);
-      });
+      activityEvents.forEach((event) => window.removeEventListener(event, resetTimer));
     };
   }, [logout]);
-
-  return null; // هیچ شتێک نیشان نادات، تەنها لۆژیکەکە جێبەجێ دەکات
+  return null;
 };
 
 const CustomHeader: React.FC<{ 
@@ -125,6 +111,7 @@ function App() {
             authProvider={authProvider} 
             notificationProvider={useNotificationProvider} 
             resources={[
+              { name: "dashboard", list: "/dashboard", meta: { label: "داشبۆرد", icon: <DashboardOutlined /> } },
               { name: "userlevle", list: "/userlevle" },
               { name: "users", list: "/users" },
               { name: "mshtary", list: "/mshtarylist" },
@@ -136,7 +123,6 @@ function App() {
               { name: "statement", list: "/statement" }
             ]}
           >
-            {/* لێرە چاودێرەکە جێگیر کراوە بۆ ئەوەی لە هەموو ئەپەکەدا کار بکات */}
             <AutoLogoutHandler />
 
             <Routes>
@@ -151,23 +137,21 @@ function App() {
                         <CustomHeader collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} />
                         <Content style={{ padding: "15px" }}>
                           <Routes>
+                             {/* لێرەدا دیاری کراوە کە هەر کەسێک هاتە ناوەوە ڕاستەوخۆ بچێتە سەر dashboard */}
+                             <Route index element={<Navigate to="/dashboard" replace />} />
+
                              <Route path="/userlevle/*" element={<Nnasandn />} />
                              <Route path="/users/*" element={<Nnasandn />} />
                              <Route path="/mshtarylist/*" element={<Nnasandn />} />
                              <Route path="/barhamlist/*" element={<Nnasandn />} />
                              <Route path="/nrxfrosh/*" element={<Nnasandn />} />
                              <Route path="/company/*" element={<Nnasandn />} />
-                             
                              <Route path="/wargrtn/*" element={<ZhmeryaryMenu />} />
                              <Route path="/wargrtnlist/*" element={<ZhmeryaryMenu />} />
-                             
                              <Route path="/draw/*" element={<Mdraw />} />
                              <Route path="/drawlist/*" element={<Mdraw />} />
-
                              <Route path="/sale/*" element={<Msale />} />
                              <Route path="/salelist/*" element={<Msale />} />
-
-                             <Route index element={<UserList />} />
                           </Routes>
 
                           <div style={{ marginTop: "10px" }}>
@@ -179,6 +163,7 @@ function App() {
                   </Authenticated>
                 }
               >
+                {/* ئەم بەشە وەک خۆی هێڵراوەتەوە بۆ کارکردنی لاپەڕەکان بە دروستی */}
                 <Route path="/userlevle" element={<UserLevelList />} />
                 <Route path="/users" element={<UserList />} /> 
                 <Route path="/mshtarylist" element={<MshtaryList />} />
@@ -188,13 +173,11 @@ function App() {
                 <Route path="/statement" element={<CustomerStatement />} />
                 <Route path="/wargrtn" element={<Wargrtn />} /> 
                 <Route path="/wargrtnlist" element={<WargrtnList />} /> 
-                
                 <Route path="/draw" element={<Draw />} /> 
                 <Route path="/drawlist" element={<DrawList />} /> 
-
                 <Route path="/sale" element={<SaleForm />} /> 
                 <Route path="/salelist" element={<SaleList />} /> 
-                
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="*" element={<ErrorComponent />} />
               </Route>
             </Routes>

@@ -71,14 +71,17 @@ export const LoginPage = () => {
         return;
       }
 
-      // --- لێرە ئایدییەکە بە ناوی id پاشکەوت دەکرێت ---
       localStorage.setItem("user_info", JSON.stringify({
         id: user.id, 
         fullname: user.fullname,
         level_id: user.level_id
       }));
 
-      login(user, {
+      // --- لێرە گۆڕانکاری کراوە بۆ ئەوەی ڕاستەوخۆ بچێتە داشبۆرد ---
+      login({ 
+        ...user, 
+        redirectTo: "/dashboard" 
+      }, {
         onSuccess: () => {
           message.success(`بەخێربێیتەوە ${user.fullname}`);
         }
@@ -96,7 +99,6 @@ export const LoginPage = () => {
 
   return (
     <div className="login-container" style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "#f0f2f5", direction: "rtl" }}>
-      {/* ئەم ستایلە ڕەنگە شین و خۆڵەمێشییەکەی Autofill لادەبات */}
       <style>
         {`
           input:-webkit-autofill,
@@ -124,7 +126,7 @@ export const LoginPage = () => {
               <Input 
                 {...inputIcon(<UserOutlined />)} 
                 placeholder="ناوی بەکارهێنەر" 
-                autoComplete="one-time-code" // گۆڕینی ئەمە بۆ ئەوەی چیتر ئەو پێشنیارانە نەیەن
+                autoComplete="one-time-code"
               />
             </Form.Item>
 
