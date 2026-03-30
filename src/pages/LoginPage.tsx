@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLogin } from "@refinedev/core";
-import { Card, Form, Input, Button, Typography, Row, Col, App } from "antd"; // App لێرە زیاد کراوە
+import { Card, Form, Input, Button, Typography, Row, Col, App } from "antd"; 
 import { 
   UserOutlined, 
   LockOutlined, 
@@ -18,7 +18,6 @@ export const LoginPage = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [captcha, setCaptcha] = useState({ n1: 0, n2: 0 });
 
-  // ئەمە کلیلی چارەسەرەکەیە: بەکارهێنانی هۆکی مسج لەناو App Context
   const { message } = App.useApp();
 
   const genCaptcha = useCallback(() => {
@@ -40,14 +39,12 @@ export const LoginPage = () => {
   };
 
   const onFinish = async (v: any) => {
-    // پشکنینی کەپچا
     if (parseInt(v.captchaResult) !== captcha.n1 + captcha.n2) {
       message.error("ئەنجامی کۆکردنەوە هەڵەیە!");
       return genCaptcha();
     }
 
     try {
-      // گەڕان بەدوای بەکارهێنەر
       const { data: user, error } = await supabase
         .from("user")
         .select("*")
@@ -74,7 +71,9 @@ export const LoginPage = () => {
         return;
       }
 
+      // --- لێرە ئایدییەکە بە ناوی id پاشکەوت دەکرێت ---
       localStorage.setItem("user_info", JSON.stringify({
+        id: user.id, 
         fullname: user.fullname,
         level_id: user.level_id
       }));
@@ -96,7 +95,20 @@ export const LoginPage = () => {
   });
 
   return (
-    <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "#f0f2f5", direction: "rtl" }}>
+    <div className="login-container" style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "#f0f2f5", direction: "rtl" }}>
+      {/* ئەم ستایلە ڕەنگە شین و خۆڵەمێشییەکەی Autofill لادەبات */}
+      <style>
+        {`
+          input:-webkit-autofill,
+          input:-webkit-autofill:hover, 
+          input:-webkit-autofill:focus, 
+          input:-webkit-autofill:active  {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            box-shadow: 0 0 0 30px white inset !important;
+          }
+        `}
+      </style>
+
       <Card styles={{ body: { padding: 0 } }} style={{ width: 400, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}>
         <div style={{ background: "#0d9488", padding: "15px", textAlign: "center" }}>
           <Title level={4} style={{ color: "white", margin: 0 }}>شیرینی تاج</Title>
@@ -107,13 +119,21 @@ export const LoginPage = () => {
             <img src={Logo} alt="Logo" style={{ width: 120 }} />
           </div>
           
-          <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={onValuesChange}>
+          <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={onValuesChange} autoComplete="off">
             <Form.Item name="username" rules={[{ required: true, message: "ناوی بەکارهێنەر بنوسە" }]}>
-              <Input {...inputIcon(<UserOutlined />)} placeholder="ناوی بەکارهێنەر" />
+              <Input 
+                {...inputIcon(<UserOutlined />)} 
+                placeholder="ناوی بەکارهێنەر" 
+                autoComplete="one-time-code" // گۆڕینی ئەمە بۆ ئەوەی چیتر ئەو پێشنیارانە نەیەن
+              />
             </Form.Item>
 
             <Form.Item name="password" rules={[{ required: true, message: "وشەی نهێنی بنوسە" }]}>
-              <Input.Password {...inputIcon(<LockOutlined />)} placeholder="وشەی نهێنی" />
+              <Input.Password 
+                {...inputIcon(<LockOutlined />)} 
+                placeholder="وشەی نهێنی" 
+                autoComplete="new-password"
+              />
             </Form.Item>
             
             <div style={{ background: "#f8f9fa", padding: "15px", borderRadius: 8, marginBottom: 20, border: "1px solid #e2e8f0", direction: "ltr" }}>
